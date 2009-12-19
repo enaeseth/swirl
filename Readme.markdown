@@ -8,8 +8,11 @@ the flow of your program. Swirl exploits Python's
 [support for coroutines][pep342] to remove the need for you to write explicit
 callback functions.
 
+For more information on how to use Swirl, visit [its website][swirl].
+
 [tornado]: http://www.tornadoweb.org/
 [pep342]: http://www.python.org/dev/peps/pep-0342/
+[swirl]: http://code.naeseth.com/swirl/
 
 License
 -------
