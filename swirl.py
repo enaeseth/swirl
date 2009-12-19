@@ -10,7 +10,7 @@ import functools
 from tornado.ioloop import IOLoop
 from tornado.web import RequestHandler, asynchronous as web_async
 
-__version__ = '0.0.1'
+__version__ = '0.1.0'
 
 def make_asynchronous_decorator(io_loop):
     """
