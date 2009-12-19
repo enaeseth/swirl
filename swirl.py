@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 """
-Provides some sugar to make parts of Tornado more palatable.
+Provides some sugar to make Tornado's async stuff more palatable.
 """
 
 import inspect
@@ -14,13 +14,17 @@ __version__ = '0.0.1'
 
 def make_asynchronous_decorator(io_loop):
     """
+    Creates an asynchronous decorator that uses the given I/O loop.
     
+    For information on how to use such a decorator, see
+    `swirl.asynchronous`.
     """
     
     
     def asynchronous(coroutine):
         """
-    
+        Allows a function to not use explicit callback functions to respond
+        to asynchronous events.
         """
         
         @functools.wraps(coroutine)
