@@ -42,28 +42,28 @@ def make_asynchronous_decorator(io_loop):
                 # its result like tornado.web.asynchronous would do
                 return gen
             
-            work = None
+            work = [None]
             def execute_work():
-                return work(callback_proxy)
+                return work[0](callback_proxy)
             
             def callback_proxy(*args):
                 is_err = lambda val: isinstance(val, Exception)
                 try:
                     if len(args) > 0:
                         if is_err(args[-1]):
-                            work = gen.throw(args[-1])
+                            work[0] = gen.throw(args[-1])
                         elif (hasattr(args[0], 'error') and
                               is_err(args[0].error)):
-                            work = gen.throw(args[0].error)
+                            work[0] = gen.throw(args[0].error)
                         else:
                             if args[-1] is None:
                                 args = args[:-1]
                             if len(args) == 1:
-                                work = gen.send(args[0])
+                                work[0] = gen.send(args[0])
                             else:
-                                work = gen.send(args)
+                                work[0] = gen.send(args)
                     else:
-                        work = gen.next()
+                        work[0] = gen.next()
                     io_loop.add_callback(execute_work)
                 except StopIteration:
                     if web_handler:
@@ -77,7 +77,7 @@ def make_asynchronous_decorator(io_loop):
                             web_handler._handle_request_exception(e)
             
             try:
-                work = gen.next()
+                work[0] = gen.next()
             except StopIteration:
                 return None
             
