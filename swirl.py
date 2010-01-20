@@ -66,7 +66,7 @@ def make_asynchronous_decorator(io_loop):
                         work[0] = gen.next()
                     io_loop.add_callback(execute_work)
                 except StopIteration:
-                    if web_handler:
+                    if web_handler and not web_handler._finished:
                         web_handler.finish()
                 except Exception, e:
                     if web_handler:
