@@ -4,11 +4,18 @@
 Provides some sugar to make Tornado's async stuff more palatable.
 """
 
-import inspect
 import logging
 import functools
 from tornado.ioloop import IOLoop
 from tornado.web import RequestHandler, asynchronous as web_async
+
+try:
+    from inspect import isgenerator
+except ImportError:
+    # Python < 2.6
+    import types
+    def isgenerator(obj):
+        return isinstance(obj, types.GeneratorType)
 
 __version__ = '0.1.0'
 
@@ -37,7 +44,7 @@ def make_asynchronous_decorator(io_loop):
                 web_handler = None
             
             gen = routine(*args, **kwargs)
-            if not inspect.isgenerator(gen):
+            if not isgenerator(gen):
                 # the "coroutine" isn't actually a coroutine; just return
                 # its result like tornado.web.asynchronous would do
                 return gen
