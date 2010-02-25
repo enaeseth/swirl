@@ -23,10 +23,15 @@ def make_asynchronous_decorator(io_loop):
     """
     Creates an asynchronous decorator that uses the given I/O loop.
     
+    If the `io_loop` argument is None, the default IOLoop instance will be
+    used.
+    
     For information on how to use such a decorator, see
     `swirl.asynchronous`.
     """
     
+    # hack because Python 2.x lacks the "nonlocal" keyword
+    io_loop = [io_loop]
     
     def asynchronous(coroutine):
         """
@@ -36,6 +41,9 @@ def make_asynchronous_decorator(io_loop):
         
         @functools.wraps(coroutine)
         def run_async_routine(*args, **kwargs):
+            if io_loop[0] is None:
+                io_loop[0] = IOLoop.instance()
+            
             if len(args) > 0 and isinstance(args[0], RequestHandler):
                 routine = web_async(coroutine)
                 web_handler = args[0]
@@ -71,7 +79,7 @@ def make_asynchronous_decorator(io_loop):
                                 work[0] = gen.send(args)
                     else:
                         work[0] = gen.next()
-                    io_loop.add_callback(execute_work)
+                    io_loop[0].add_callback(execute_work)
                 except StopIteration:
                     if web_handler and not web_handler._finished:
                         web_handler.finish()
@@ -88,9 +96,9 @@ def make_asynchronous_decorator(io_loop):
             except StopIteration:
                 return None
             
-            io_loop.add_callback(execute_work)
+            io_loop[0].add_callback(execute_work)
         return run_async_routine
     
     return asynchronous
 
-asynchronous = make_asynchronous_decorator(IOLoop.instance())
+asynchronous = make_asynchronous_decorator(None)
