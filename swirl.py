@@ -18,7 +18,7 @@ except ImportError:
         return bool((inspect.isfunction(object) or inspect.ismethod(object)) and
                     obj.func_code.co_flags & CO_GENERATOR)
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 class CoroutineRunner(object):
     def __init__(self, generator, web_handler=None, io_loop=None):
