@@ -20,11 +20,12 @@ except ImportError:
 
 __version__ = '0.1.0'
 
-class CoroutineRunner:
-    def __init__(self, io_loop, gen, web_handler):
-        self.gen = gen
-        self.io_loop = io_loop
+class CoroutineRunner(object):
+    def __init__(self, generator, web_handler=None, io_loop=None):
+        self.gen = generator
         self.web_handler = web_handler
+        self.io_loop = io_loop
+        
         # start the ball rolling...
         self.callback_proxy()
     
@@ -48,6 +49,10 @@ class CoroutineRunner:
                         self.work = self.gen.send(args)
             else:
                 self.work = self.gen.next()
+            
+            if self.io_loop is None:
+                self.io_loop = IOLoop.instance()
+            
             self.io_loop.add_callback(self.execute_work)
         except StopIteration:
             if self.web_handler and not self.web_handler._finished:
@@ -70,11 +75,6 @@ def make_asynchronous_decorator(io_loop):
     For information on how to use such a decorator, see
     `swirl.asynchronous`.
     """
-    if io_loop is None:
-        io_loop = IOLoop.instance()
-                
-    # hack because Python 2.x lacks the "nonlocal" keyword
-    io_loop = [io_loop]
     
     def asynchronous(coroutine):
         """
@@ -94,12 +94,10 @@ def make_asynchronous_decorator(io_loop):
             # we check if we're an instancemethod of RequestHandler for better
             # intergration
             if len(args) > 0 and isinstance(args[0], RequestHandler):
-                CoroutineRunner(io_loop[0],
-                                web_async_coroutine(*args, **kwargs),
-                                args[0])
+                CoroutineRunner(web_async_coroutine(*args, **kwargs),
+                    args[0], io_loop)
             else:
-                CoroutineRunner(io_loop[0],
-                                coroutine(*args, **kwargs), None)
+                CoroutineRunner(coroutine(*args, **kwargs), io_loop=io_loop)
         
         return run_async_routine    
     return asynchronous
