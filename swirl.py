@@ -15,8 +15,8 @@ try:
 except ImportError:
     # Python < 2.6
     def isgeneratorfunction(obj):
-        return bool((inspect.isfunction(object) or inspect.ismethod(object)) and
-                    obj.func_code.co_flags & CO_GENERATOR)
+        return bool((inspect.isfunction(obj) or inspect.ismethod(obj)) and
+                    obj.func_code.co_flags & inspect.CO_GENERATOR)
 
 __version__ = '0.1.1'
 
