@@ -32,7 +32,7 @@ class CoroutineRunner(object):
     def execute_work(self):
         return self.work(self.callback_proxy)
 
-    def callback_proxy(self, *args):
+    def callback_proxy(self, *args, **kwargs):
         try:
             if len(args) > 0:
                 if isinstance(args[-1], Exception):
